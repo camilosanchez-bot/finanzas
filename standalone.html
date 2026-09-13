@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money-Flow Retirement Planner</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/recharts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .setup-container {
+            max-width: 600px;
+        }
+
+        .title-main {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            color: #0b0b0b;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #378ADD;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2871c4;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 0.5px solid #ddd;
+            color: #333;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 0.5px solid #ddd;
+            color: #333;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #0b0b0b;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 0.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #378ADD;
+            box-shadow: 0 0 0 2px rgba(55, 138, 221, 0.1);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .card {
+            background: white;
+            border: 0.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #0b0b0b;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #0b0b0b;
+        }
+
+        .golden-card {
+            background: linear-gradient(135deg, #D4A574 0%, #A67C52 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .golden-number {
+            font-size: 48px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 0.5px solid #e0e0e0;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 500;
+            color: #0b0b0b;
+        }
+
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .btn-nav {
+            background: #f9f9f9;
+            border: 0.5px solid #ddd;
+            color: #333;
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .palanca-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .palanca-item {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 0.5px solid #e0e0e0;
+        }
+
+        .palanca-item .value.accent {
+            color: #378ADD;
+        }
+
+        .investment-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .investment-card.brick {
+            background: linear-gradient(135deg, #B8860B 0%, #8B6914 100%);
+        }
+
+        .investment-card.house {
+            background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+        }
+
+        .investment-card.terrace {
+            background: linear-gradient(135deg, #FF6347 0%, #DC143C 100%);
+        }
+
+        .investment-card.pool {
+            background: linear-gradient(135deg, #9932CC 0%, #8B008B 100%);
+        }
+
+        .vortex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .vortex-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .vortex-card.emergency {
+            background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+        }
+
+        .vortex-card.oxygen {
+            background: linear-gradient(135deg, #F39C12 0%, #D68910 100%);
+        }
+
+        .vortex-card.retirement {
+            background: linear-gradient(135deg, #27AE60 0%, #1E8449 100%);
+        }
+
+        .info-box {
+            background: #E6F1FB;
+            border: 0.5px solid #85B7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 13px;
+            color: #185FA5;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row input {
+            padding: 0.75rem;
+            border: 0.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .contributions-list {
+            margin-top: 2rem;
+        }
+
+        .contributions-list h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #0b0b0b;
+        }
+
+        .list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 0.5px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 0.5px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        .total-box {
+            padding: 1rem;
+            background: #E6F1FB;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #185FA5;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 0.5px solid #e0e0e0;
+            margin-bottom: 2rem;
+        }
+
+        .analysis-box {
+            background: #EAF3DE;
+            border: 0.5px solid #97C459;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid #639922;
+        }
+
+        .analysis-box h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #0b0b0b;
+        }
+
+        .analysis-points {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .analysis-points p {
+            font-size: 13px;
+            color: #0b0b0b;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .milestones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .milestone {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 0.5px solid #e0e0e0;
+        }
+
+        .milestone .value.accent {
+            color: #378ADD;
+        }
+
+        .milestone .value.success {
+            color: #27AE60;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-toggle {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 0.5px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .btn-toggle.active {
+            background: #378ADD;
+            color: white;
+            border-color: #378ADD;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        const React = window.React;
+        const ReactDOM = window.ReactDOM;
+
+        function MoneyFlowApp() {
+            const [currentStep, setCurrentStep] = React.useState('setup');
+            const [profile, setProfile] = React.useState(null);
+            const [investmentProfile, setInvestmentProfile] = React.useState('moderado');
+            const [monthlyContributions, setMonthlyContributions] = React.useState([]);
+            
+            const [formData, setFormData] = React.useState({
+                name: '',
+                monthlyExpense: 3500000,
+                yearsToRetirement: 15,
+                initialCapital: 5000000,
+                expectedReturn: 8,
+                inflation: 4,
+                currentPatrimony: 0
+            });
+
+            React.useEffect(() => {
+                const saved = localStorage.getItem('moneyflow_profile');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    setProfile(data);
+                    setFormData(data);
+                    setCurrentStep('dashboard');
+                }
+            }, []);
+
+            const saveProfile = () => {
+                localStorage.setItem('moneyflow_profile', JSON.stringify(formData));
+                setProfile(formData);
+                setCurrentStep('dashboard');
+            };
+
+            const calculateGoldenNumber = () => {
+                const monthlyExpense = formData.monthlyExpense;
+                const yearsToRetirement = formData.yearsToRetirement;
+                const expectedReturn = formData.expectedReturn / 100;
+                const inflation = formData.inflation / 100;
+                
+                const monthlyRetirementExpense = monthlyExpense * Math.pow(1 + inflation, yearsToRetirement);
+                const totalNeededWithInflation = monthlyRetirementExpense * 12 * 30;
+                const discountFactor = Math.pow(1 + expectedReturn, yearsToRetirement);
+                
+                return Math.round(totalNeededWithInflation / discountFactor);
+            };
+
+            const calculateProjection = () => {
+                let balance = formData.initialCapital + (formData.currentPatrimony || 0);
+                const data = [];
+                const monthlyReturn = formData.expectedReturn / 100 / 12;
+                const monthlyInflation = formData.inflation / 100 / 12;
+                let monthlyContrib = formData.monthlyExpense;
+                
+                for (let month = 0; month <= formData.yearsToRetirement * 12; month++) {
+                    const year = Math.floor(month / 12);
+                    
+                    if (year > 5) {
+                        monthlyContrib = formData.monthlyExpense * Math.pow(1 + monthlyInflation, month);
+                    }
+                    
+                    if (month % 12 === 0) {
+                        data.push({
+                            year: year,
+                            balance: Math.round(balance)
+                        });
+                    }
+                    
+                    balance = balance * (1 + monthlyReturn) + monthlyContrib;
+                }
+                
+                return data;
+            };
+
+            const getInvestmentDistribution = () => {
+                const distributions = {
+                    conservador: { paredes: 50, habitaciones: 30, terraza: 15, piscina: 5 },
+                    moderado: { paredes: 35, habitaciones: 35, terraza: 25, piscina: 5 },
+                    agresivo: { paredes: 20, habitaciones: 35, terraza: 35, piscina: 10 }
+                };
+                return distributions[investmentProfile];
+            };
+
+            const getVortexFunds = () => {
+                const totalPatrimony = calculateGoldenNumber();
+                return {
+                    imprevistos: totalPatrimony * 0.05,
+                    oxigeno: Math.max(formData.monthlyExpense * 3, formData.monthlyExpense * 6),
+                    retiro: totalPatrimony * 0.90
+                };
+            };
+
+            const goldenNumber = calculateGoldenNumber();
+            const projectionData = calculateProjection();
+            const investmentDist = getInvestmentDistribution();
+            const vortexFunds = getVortexFunds();
+
+            // SETUP
+            if (currentStep === 'setup') {
+                return React.createElement('div', { className: 'container setup-container' },
+                    React.createElement('h1', { className: 'title-main' }, 'Tu Plan de Retiro Money-Flow'),
+                    React.createElement('div', { className: 'form-grid' },
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Tu nombre'),
+                            React.createElement('input', { type: 'text', value: formData.name, onChange: (e) => setFormData({...formData, name: e.target.value}), placeholder: 'Camilo' })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Gasto mensual (COP)'),
+                            React.createElement('input', { type: 'number', value: formData.monthlyExpense, onChange: (e) => setFormData({...formData, monthlyExpense: parseInt(e.target.value)}) })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Años para retiro'),
+                            React.createElement('input', { type: 'number', value: formData.yearsToRetirement, onChange: (e) => setFormData({...formData, yearsToRetirement: parseInt(e.target.value)}), min: '1', max: '50' })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Capital inicial (COP)'),
+                            React.createElement('input', { type: 'number', value: formData.initialCapital, onChange: (e) => setFormData({...formData, initialCapital: parseInt(e.target.value)}) })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Patrimonio actual (COP)'),
+                            React.createElement('input', { type: 'number', value: formData.currentPatrimony, onChange: (e) => setFormData({...formData, currentPatrimony: parseInt(e.target.value)}) })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Rentabilidad (%)'),
+                            React.createElement('input', { type: 'number', value: formData.expectedReturn, onChange: (e) => setFormData({...formData, expectedReturn: parseFloat(e.target.value)}), min: '0', max: '30', step: '0.5' })
+                        ),
+                        React.createElement('div', { className: 'form-group' },
+                            React.createElement('label', null, 'Inflación (%)'),
+                            React.createElement('input', { type: 'number', value: formData.inflation, onChange: (e) => setFormData({...formData, inflation: parseFloat(e.target.value)}), min: '0', max: '15', step: '0.5' })
+                        ),
+                        React.createElement('button', { className: 'btn btn-primary', onClick: saveProfile, style: {gridColumn: '1 / -1'} }, 'Comenzar Plan')
+                    )
+                );
+            }
+
+            // DASHBOARD
+            if (currentStep === 'dashboard' && profile) {
+                return React.createElement('div', { className: 'container' },
+                    React.createElement('div', { className: 'header-nav' },
+                        React.createElement('h1', { className: 'title-main' }, `Hola ${profile.name} 👋`),
+                        React.createElement('button', { className: 'btn btn-secondary', onClick: () => setCurrentStep('setup') }, 'Editar datos')
+                    ),
+                    React.createElement('div', { className: 'golden-card' },
+                        React.createElement('p', { style: {fontSize: '12px', fontWeight: 500, opacity: 0.9, marginBottom: '0.5rem'} }, 'TU NÚMERO DORADO'),
+                        React.createElement('p', { className: 'golden-number' }, `$${(goldenNumber / 1000000).toFixed(0)}M`),
+                        React.createElement('p', { style: {fontSize: '12px', opacity: 0.85, marginTop: '0.5rem'} }, `Patrimonio necesario para vivir hasta los 85 años`)
+                    ),
+                    React.createElement('div', { className: 'metrics-grid' },
+                        React.createElement('div', { className: 'metric-card' },
+                            React.createElement('p', { className: 'metric-label' }, 'Años para retiro'),
+                            React.createElement('p', { className: 'metric-value' }, profile.yearsToRetirement)
+                        ),
+                        React.createElement('div', { className: 'metric-card' },
+                            React.createElement('p', { className: 'metric-label' }, 'Gasto mensual'),
+                            React.createElement('p', { className: 'metric-value' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`)
+                        ),
+                        React.createElement('div', { className: 'metric-card' },
+                            React.createElement('p', { className: 'metric-label' }, 'Capital invertido'),
+                            React.createElement('p', { className: 'metric-value' }, `$${(profile.initialCapital / 1000000).toFixed(1)}M`)
+                        ),
+                        React.createElement('div', { className: 'metric-card' },
+                            React.createElement('p', { className: 'metric-label' }, 'Rentabilidad'),
+                            React.createElement('p', { className: 'metric-value' }, `${profile.expectedReturn}%`)
+                        )
+                    ),
+                    React.createElement('div', { className: 'nav-buttons' },
+                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('palancas') }, '📊 Las 3 Palancas'),
+                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('seguimiento') }, '📈 Mi Seguimiento'),
+                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('proyecciones') }, '🔮 Proyecciones')
+                    ),
+                    React.createElement('div', { className: 'chart-container' },
+                        React.createElement('h3', null, 'Proyección de Patrimonio'),
+                        React.createElement('p', { style: {fontSize: '12px', color: '#666'} }, 'Gráfico de crecimiento estimado (basado en datos ingresados)')
+                    )
+                );
+            }
+
+            // PALANCAS
+            if (currentStep === 'palancas' && profile) {
+                return React.createElement('div', { className: 'container' },
+                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
+                    React.createElement('h1', { className: 'title-main' }, 'Las 3 Palancas del Método Money-Flow'),
+                    
+                    // Palanca 1
+                    React.createElement('div', { className: 'card' },
+                        React.createElement('h2', null, '🎯 Palanca 1: Cómo Ordenar tu Dinero'),
+                        React.createElement('div', { className: 'palanca-grid' },
+                            React.createElement('div', { className: 'palanca-item' },
+                                React.createElement('p', { className: 'metric-label' }, 'Gasto mensual'),
+                                React.createElement('p', { className: 'metric-value' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`),
+                                React.createElement('p', { className: 'hint' }, 'Lo necesario para vivir')
+                            ),
+                            React.createElement('div', { className: 'palanca-item' },
+                                React.createElement('p', { className: 'metric-label' }, 'Aporte mensual ideal'),
+                                React.createElement('p', { className: 'metric-value accent' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`),
+                                React.createElement('p', { className: 'hint' }, 'Primero ahorrar, luego vivir')
+                            )
+                        )
+                    ),
+
+                    // Palanca 2
+                    React.createElement('div', { className: 'card' },
+                        React.createElement('h2', null, '🏠 Palanca 2: Rentar Mejor'),
+                        React.createElement('div', { style: {marginBottom: '1.5rem'} },
+                            React.createElement('label', { style: {display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '0.75rem'} }, 'Perfil de inversión:'),
+                            React.createElement('div', { className: 'button-group' },
+                                ['conservador', 'moderado', 'agresivo'].map(p =>
+                                    React.createElement('button', {
+                                        key: p,
+                                        className: `btn-toggle ${investmentProfile === p ? 'active' : ''}`,
+                                        onClick: () => setInvestmentProfile(p)
+                                    }, p)
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'palanca-grid' },
+                            React.createElement('div', { className: 'investment-card brick' },
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🧱 Las Paredes'),
+                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.paredes}%`),
+                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'CDT, Bonos')
+                            ),
+                            React.createElement('div', { className: 'investment-card house' },
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🏡 Las Habitaciones'),
+                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.habitaciones}%`),
+                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'ETFs, Fondos')
+                            ),
+                            React.createElement('div', { className: 'investment-card terrace' },
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🌳 La Terraza'),
+                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.terraza}%`),
+                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'Acciones')
+                            ),
+                            React.createElement('div', { className: 'investment-card pool' },
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '💎 La Piscina'),
+                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.piscina}%`),
+                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'Cripto, Fintech')
+                            )
+                        )
+                    ),
+
+                    // Palanca 3
+                    React.createElement('div', { className: 'card' },
+                        React.createElement('h2', null, '🌀 Palanca 3: Método Vortex'),
+                        React.createElement('div', { className: 'vortex-grid' },
+                            React.createElement('div', { className: 'vortex-card emergency' },
+                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '🚨 Imprevistos'),
+                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '5%'),
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.imprevistos / 1000000).toFixed(1)}M`)
+                            ),
+                            React.createElement('div', { className: 'vortex-card oxygen' },
+                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '💨 Oxígeno'),
+                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '10%'),
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.oxigeno / 1000000).toFixed(1)}M`)
+                            ),
+                            React.createElement('div', { className: 'vortex-card retirement' },
+                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '🎯 Retiro'),
+                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '85%'),
+                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.retiro / 1000000).toFixed(1)}M`)
+                            )
+                        )
+                    )
+                );
+            }
+
+            // SEGUIMIENTO
+            if (currentStep === 'seguimiento' && profile) {
+                return React.createElement('div', { className: 'container' },
+                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
+                    React.createElement('h1', { className: 'title-main' }, 'Mi Seguimiento'),
+                    React.createElement('div', { className: 'info-box' }, '📊 Registra tus aportes mensuales'),
+                    React.createElement('div', { className: 'card' },
+                        React.createElement('h3', null, 'Registrar nuevo aporte'),
+                        React.createElement('div', { className: 'form-row' },
+                            React.createElement('input', { type: 'month', id: 'month' }),
+                            React.createElement('input', { type: 'number', id: 'amount', placeholder: 'Monto (COP)' }),
+                            React.createElement('button', {
+                                className: 'btn btn-primary',
+                                onClick: () => {
+                                    const month = document.getElementById('month').value;
+                                    const amount = parseInt(document.getElementById('amount').value);
+                                    if (month && amount > 0) {
+                                        setMonthlyContributions([...monthlyContributions, { month, amount }]);
+                                        document.getElementById('amount').value = '';
+                                    }
+                                }
+                            }, 'Agregar')
+                        ),
+                        monthlyContributions.length > 0 && React.createElement('div', { className: 'contributions-list' },
+                            React.createElement('h4', null, 'Mis Aportes'),
+                            React.createElement('div', { className: 'list' },
+                                monthlyContributions.map((c, i) =>
+                                    React.createElement('div', { key: i, className: 'list-item' },
+                                        React.createElement('span', null, c.month),
+                                        React.createElement('span', { style: {fontWeight: 500, color: '#378ADD'} }, `$${(c.amount / 1000000).toFixed(1)}M`)
+                                    )
+                                )
+                            ),
+                            React.createElement('div', { className: 'total-box' },
+                                `Total: $${(monthlyContributions.reduce((a, c) => a + c.amount, 0) / 1000000).toFixed(1)}M`
+                            )
+                        )
+                    )
+                );
+            }
+
+            // PROYECCIONES
+            if (currentStep === 'proyecciones' && profile) {
+                return React.createElement('div', { className: 'container' },
+                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
+                    React.createElement('h1', { className: 'title-main' }, 'Proyecciones'),
+                    React.createElement('div', { className: 'chart-container' },
+                        React.createElement('h3', null, 'Crecimiento del Patrimonio'),
+                        React.createElement('p', { style: {fontSize: '12px', color: '#666'} }, `Año 0: $${((profile.initialCapital + profile.currentPatrimony) / 1000000).toFixed(1)}M → Año ${profile.yearsToRetirement}: $${(projectionData[projectionData.length - 1]?.balance / 1000000).toFixed(1)}M`)
+                    ),
+                    React.createElement('div', { className: 'card' },
+                        React.createElement('h3', null, 'Hitos'),
+                        React.createElement('div', { className: 'milestones-grid' },
+                            React.createElement('div', { className: 'milestone' },
+                                React.createElement('p', { className: 'metric-label' }, 'Capital Inicial'),
+                                React.createElement('p', { className: 'metric-value' }, `$${((profile.initialCapital + profile.currentPatrimony) / 1000000).toFixed(1)}M`)
+                            ),
+                            React.createElement('div', { className: 'milestone' },
+                                React.createElement('p', { className: 'metric-label' }, 'Año 5'),
+                                React.createElement('p', { className: 'metric-value' }, `$${(projectionData[5]?.balance / 1000000 || 0).toFixed(1)}M`)
+                            ),
+                            React.createElement('div', { className: 'milestone' },
+                                React.createElement('p', { className: 'metric-label' }, 'Año Final'),
+                                React.createElement('p', { className: 'metric-value accent' }, `$${(projectionData[projectionData.length - 1]?.balance / 1000000).toFixed(1)}M`)
+                            ),
+                            React.createElement('div', { className: 'milestone' },
+                                React.createElement('p', { className: 'metric-label' }, 'Tu Meta'),
+                                React.createElement('p', { className: 'metric-value success' }, `$${(goldenNumber / 1000000).toFixed(1)}M`)
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: 'analysis-box' },
+                        React.createElement('h3', null, 'Tu Plan'),
+                        React.createElement('div', { className: 'analysis-points' },
+                            React.createElement('p', null, `✓ En ${profile.yearsToRetimiento} años habrás acumulado $${(projectionData[projectionData.length - 1]?.balance / 1000000).toFixed(1)}M`),
+                            React.createElement('p', null, `✓ Tu número dorado es $${(goldenNumber / 1000000).toFixed(1)}M`),
+                            React.createElement('p', null, '✓ La diferencia será tu colchón de seguridad')
+                        )
+                    )
+                );
+            }
+
+            return null;
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MoneyFlowApp));
+    </script>
+</body>
+</html>
